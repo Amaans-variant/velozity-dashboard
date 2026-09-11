@@ -1,0 +1,17 @@
+# spins up postgres so u dont have to install it locally and cry about it
+# `docker-compose up -d` then go make coffee, migrations happen separately
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: velozity
+      POSTGRES_PASSWORD: velozity123 # yes i know. its local dev, relax
+      POSTGRES_DB: velozity_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

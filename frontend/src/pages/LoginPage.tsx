@@ -29,10 +29,14 @@ export default function LoginPage() {
   return (
     <div style={{ maxWidth: 360, margin: '80px auto', fontFamily: 'sans-serif' }}>
       <h2>Velozity Dashboard</h2>
-      <p style={{ fontSize: 12, color: '#000000' }}>
-        seed users: admin@velozity.com / pm1@velozity.com, pm2@velozity.com etc / dev1@velozity.com, dev1@velozity.com etc,
-        password is "password123" for all of them
-      </p>
+        <h3>Seed Users</h3>
+        <ul>
+        <li><strong>Admin:</strong> <code>admin@velozity.com</code></li>
+        <li><strong>Project Managers:</strong> <code>pm1@velozity.com</code>, <code>pm2@velozity.com</code>, etc.</li>
+        <li><strong>Developers:</strong> <code>dev1@velozity.com</code>, <code>dev2@velozity.com</code>, etc.</li>
+        </ul>
+
+        <p><strong>Global Password:</strong> <code>password123</code></p>
       <form onSubmit={handleSubmit}>
         <input
           value={email}

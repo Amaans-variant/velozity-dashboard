@@ -31,12 +31,12 @@ export default function LoginPage() {
       <h2>Velozity Dashboard</h2>
         <h3>Seed Users</h3>
         <ul>
-        <li><strong>Admin:</strong> <code>admin@velozity.com</code></li>
-        <li><strong>Project Managers:</strong> <code>pm1@velozity.com</code>, <code>pm2@velozity.com</code>, etc.</li>
-        <li><strong>Developers:</strong> <code>dev1@velozity.com</code>, <code>dev2@velozity.com</code>, etc.</li>
+          <li><strong>Admin:</strong> <code style="user-select: all; cursor: pointer;">admin@velozity.com</code></li>
+          <li><strong>Project Managers:</strong> <code style="user-select: all; cursor: pointer;">pm1@velozity.com</code>, <code style="user-select: all; cursor: pointer;">pm2@velozity.com</code></li>
+          <li><strong>Developers:</strong> <code style="user-select: all; cursor: pointer;">dev1@velozity.com</code>, <code style="user-select: all; cursor: pointer;">dev2@velozity.com</code></li>
         </ul>
 
-        <p><strong>Global Password:</strong> <code>password123</code></p>
+        <p><strong>Global Password:</strong> <code style="user-select: all; cursor: pointer;">password123</code></p>
       <form onSubmit={handleSubmit}>
         <input
           value={email}

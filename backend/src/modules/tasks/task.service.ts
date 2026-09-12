@@ -80,9 +80,15 @@ export async function getTasksForProject(
     }
   }
 
+  // NOTE: no orderBy here originally, which meant this list came back in
+  // whatever order postgres felt like handing it over, and reshuffled
+  // itself randomly every time someone updated a status and it refetched.
+  // matching the same sort as the developer view now so it actually feels
+  // like a real task board instead of cards jumping around on their own
   return prisma.task.findMany({
     where: { projectId, ...buildFilterWhere(filters) },
     include: { assignedTo: { select: { id: true, name: true } } },
+    orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
   });
 }
 
@@ -113,7 +119,16 @@ export async function updateTaskStatus(
 
   const updated = await prisma.task.update({
     where: { id: taskId },
-    data: { status: newStatus },
+    data: {
+      status: newStatus,
+      // this right here is the bug from the screenshot - a task marked
+      // DONE was still showing the red OVERDUE badge forever, bc isOverdue
+      // only ever got flipped TO true by the cron job and nothing ever
+      // flipped it back. "overdue" should mean "still late and not
+      // finished", not "was late at some point in its life". the second
+      // that meaning stops being true, the flag should clear
+      ...(newStatus === 'DONE' ? { isOverdue: false } : {}),
+    },
   });
 
   // db-backed log, NOT derived/computed later. this is what the missed-events

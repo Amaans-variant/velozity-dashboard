@@ -6,6 +6,7 @@ import { FilterBar } from '../components/FilterBar';
 import { TaskList } from '../components/TaskList';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { CreateTaskForm } from '../components/CreateTaskForm';
+import { Header } from '../components/Header';
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -35,8 +36,8 @@ export default function ProjectDetailPage() {
 
   return (
     <div style={{ padding: 24, fontFamily: 'sans-serif' }}>
-      <h2>{project.name}</h2>
-      <p style={{ color: '#666' }}>Client: {project.client?.name}</p>
+      <Header title={project.name} />
+      <p style={{ color: '#666', marginTop: -8 }}>Client: {project.client?.name}</p>
 
       <CreateTaskForm projectId={id} onCreated={() => setRefreshKey((k) => k + 1)} />
 

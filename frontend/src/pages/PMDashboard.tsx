@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchDashboard, fetchProjects } from '../api/tasks.api';
 import { ActivityFeed } from '../components/ActivityFeed';
-import { NotificationBell } from '../components/NotificationBell';
+import { Header } from '../components/Header';
 import { CreateProjectForm } from '../components/CreateProjectForm';
 
 export default function PMDashboard() {
@@ -24,10 +24,7 @@ export default function PMDashboard() {
 
   return (
     <div style={{ padding: 24, fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <h2>PM Dashboard</h2>
-        <NotificationBell />
-      </div>
+      <Header title="PM Dashboard" />
 
       <p>{data.projectCount} project(s) · {data.upcomingDueCount} task(s) due this week</p>
 

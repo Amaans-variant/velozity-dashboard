@@ -11,6 +11,7 @@ import activityRoutes from './modules/activity/activity.routes';
 import notificationRoutes from './modules/notifications/notification.routes';
 import dashboardRoutes from './modules/dashboard/dashboard.routes';
 import clientRoutes from './modules/clients/client.routes';
+import userRoutes from './modules/users/user.routes';
 
 export const app = express();
 
@@ -33,6 +34,7 @@ app.use('/api/activity', activityRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/clients', clientRoutes);
+app.use('/api/users', userRoutes);
 
 // has to be dead last, express error handlers only work if they're
 // registered after everything else. ask me how i know

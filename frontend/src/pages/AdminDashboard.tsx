@@ -7,12 +7,15 @@ import { getSocket } from '../sockets/socketClient';
 export default function AdminDashboard() {
   const [data, setData] = useState<any>(null);
   const [onlineNow, setOnlineNow] = useState(0);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchDashboard('admin').then((d) => {
-      setData(d);
-      setOnlineNow(d.onlineNow);
-    });
+    fetchDashboard('admin')
+      .then((d) => {
+        setData(d);
+        setOnlineNow(d.onlineNow);
+      })
+      .catch((err) => setError(err?.response?.data?.message || 'could not load admin dashboard'));
 
     // "active users online right now" via websocket presence, not a poll
     const socket = getSocket();
@@ -25,7 +28,8 @@ export default function AdminDashboard() {
     };
   }, []);
 
-  if (!data) return <p>loading admin dashboard...</p>;
+  if (error) return <p style={{ padding: 24, color: 'red' }}>{error}</p>;
+  if (!data) return <p style={{ padding: 24 }}>loading admin dashboard...</p>;
 
   return (
     <div style={{ padding: 24, fontFamily: 'sans-serif' }}>

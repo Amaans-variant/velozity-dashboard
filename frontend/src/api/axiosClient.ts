@@ -6,6 +6,12 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 export const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true, // MUST be true or the refresh cookie never gets sent, learned this one painfully
+  // render's free tier puts the server to sleep after 15 min of nobody
+  // hitting it, so the FIRST request after that can just... hang there for
+  // like 50 seconds while it wakes back up. default axios timeout is way
+  // shorter than that and would just fail the request for no real reason,
+  // so bumping it way up here. not a bug, just a free-tier nap
+  timeout: 60000,
 });
 
 // attach the access token on every request

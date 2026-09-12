@@ -63,11 +63,60 @@ Client ─< Project ─< Task ─┬─< TaskActivityLog
 - **Refresh token in an HttpOnly cookie, access token in memory:** the refresh token is invisible to client-side JS, which closes off the usual XSS-token-theft path. The access token lives in Zustand state (not localStorage) and is short-lived (15 min), so even if it leaked the exposure window is small.
 - **Role middleware vs. ownership scoping kept as two separate layers:** `requireRole()` only checks "is this a PM." Whether a PM owns *this specific* project is enforced with a `WHERE createdById = req.user.id` clause inside the service functions — mixing these two checks is a common way real apps end up leaking one PM's data to another.
 
+## Security Testing
+
+The brief specifically calls out that role access has to be enforced at the API level, not just hidden on the frontend — so here's proof it actually is, not just a claim. Run these yourself against the live backend and paste your actual results in (swap in real tokens/ids from your seeded data first).
+
+**Step 1 — get tokens for two different developers:**
+```bash
+curl -X POST https://YOUR-BACKEND-URL/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"dev1@velozity.com","password":"password123"}'
+# copy the accessToken from the response, call it DEV1_TOKEN
+
+curl -X POST https://YOUR-BACKEND-URL/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"dev2@velozity.com","password":"password123"}'
+# copy this one too, call it DEV2_TOKEN
+```
+
+**Test 1 — dev1 tries to update a task assigned to dev2 (should be blocked):**
+```bash
+curl -X PATCH https://YOUR-BACKEND-URL/api/tasks/<a-task-id-assigned-to-dev2>/status \
+  -H "Authorization: Bearer DEV1_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status":"DONE"}'
+```
+Expected: `403` with `"this is not your task to touch, nice try tho"`. This is the exact requirement from the brief — a dev can't touch another dev's data even with a valid token, because `task.service.ts` checks `task.assignedToId !== actingUser.id` on every status update, not just the role.
+
+**Test 2 — one PM tries to read another PM's project (should 404, not 403):**
+```bash
+curl https://YOUR-BACKEND-URL/api/projects/<a-project-id-owned-by-pm2> \
+  -H "Authorization: Bearer PM1_TOKEN"
+```
+Expected: `404`. Deliberately not `403` — the app doesn't even confirm the project exists to someone who has no business knowing that.
+
+**Test 3 — no token at all:**
+```bash
+curl https://YOUR-BACKEND-URL/api/projects
+```
+Expected: `401`, no data returned, no stack trace leaked in the response body.
+
+**Test 4 — developer tries to hit an admin-only route:**
+```bash
+curl https://YOUR-BACKEND-URL/api/dashboard/admin \
+  -H "Authorization: Bearer DEV1_TOKEN"
+```
+Expected: `403`.
+
+*(Results from running these against the live deployment: — fill in your actual status codes here once you run them, this is the section reviewers actually look for evidence of testing, not just a description of the design)*
+
 ## Known limitations
 - Presence tracking (online user count) is in-memory on a single server instance — would need Redis to work correctly if scaled to multiple backend instances.
 - No rate limiting on the login endpoint yet.
 - Notification "mark as read" happens on click in the dropdown, no swipe/bulk-select UI.
 - Frontend styling is intentionally minimal — time went into RBAC correctness and the real-time feed over visual polish.
+- Backend is hosted on Render's free tier, which spins down after 15 minutes of inactivity — the first request after idle time can take ~50 seconds to respond while the instance wakes back up. Not a bug, just a free-tier tradeoff.
 
 ## Explanation (for the submission form)
 

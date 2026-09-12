@@ -25,6 +25,41 @@ export async function fetchProject(id: string) {
   return res.data.project;
 }
 
+// these three were the actual gap - forms existed nowhere in the UI before
+// this, so a PM could stare at their empty dashboard forever with no way
+// to make anything happen. classic "beautifully architected app that does nothing" problem
+export async function createProject(name: string, clientId: string) {
+  const res = await api.post('/projects', { name, clientId });
+  return res.data.project;
+}
+
+export async function createTask(data: {
+  title: string;
+  description?: string;
+  projectId: string;
+  assignedToId?: string;
+  priority?: string;
+  dueDate?: string;
+}) {
+  const res = await api.post('/tasks', data);
+  return res.data.task;
+}
+
+export async function fetchClients() {
+  const res = await api.get('/clients');
+  return res.data.clients;
+}
+
+export async function createClient(name: string) {
+  const res = await api.post('/clients', { name });
+  return res.data.client;
+}
+
+export async function fetchUsersByRole(role: string) {
+  const res = await api.get(`/users?role=${role}`);
+  return res.data.users;
+}
+
 export async function fetchDashboard(role: 'admin' | 'pm' | 'developer') {
   const res = await api.get(`/dashboard/${role}`);
   return res.data.data;

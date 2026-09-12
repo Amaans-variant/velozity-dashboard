@@ -9,10 +9,12 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    fetchNotifications().then((list: Notification[]) => {
-      setNotifications(list);
-      setUnreadCount(list.filter((n) => !n.isRead).length);
-    });
+    fetchNotifications()
+      .then((list: Notification[]) => {
+        setNotifications(list);
+        setUnreadCount(list.filter((n) => !n.isRead).length);
+      })
+      .catch(() => {}); // same deal, dont let a failed fetch nuke the page
 
     const socket = getSocket();
     if (!socket) return;

@@ -7,23 +7,33 @@ const STATUSES: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE'];
 
 // projectId is optional - devs dont pass one (backend figures out "their"
 // tasks on its own), PM/admin viewing a project page pass it in
-export function TaskList({ projectId }: { projectId?: string }) {
+export function TaskList({ projectId, refreshKey }: { projectId?: string; refreshKey?: number }) {
   const { filters } = useTaskFilters();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   async function load() {
     setLoading(true);
-    const data = await fetchTasks({ ...filters, projectId });
-    setTasks(data);
-    setLoading(false);
+    setLoadError('');
+    try {
+      const data = await fetchTasks({ ...filters, projectId });
+      setTasks(data);
+    } catch (err: any) {
+      // this is the "crashes on different pages" bug - an error here used to
+      // throw and blow up the whole page. now it just shows a message instead
+      setLoadError(err?.response?.data?.message || 'could not load tasks, try refreshing');
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
     load();
-    // re-fetch whenever filters change - this is why the URL-param approach
-    // is nice, the effect just watches the serialized filter values
-  }, [JSON.stringify(filters), projectId]);
+    // re-fetch whenever filters change (or refreshKey bumps after a create) -
+    // this is why the URL-param approach is nice, the effect just watches
+    // the serialized filter values
+  }, [JSON.stringify(filters), projectId, refreshKey]);
 
   async function handleStatusChange(taskId: string, status: TaskStatus) {
     // optimistic-ish: just refetch after, not bothering with fancy rollback logic
@@ -33,6 +43,7 @@ export function TaskList({ projectId }: { projectId?: string }) {
   }
 
   if (loading) return <p>loading tasks...</p>;
+  if (loadError) return <p style={{ color: 'red' }}>{loadError}</p>;
   if (tasks.length === 0) return <p style={{ color: '#888' }}>no tasks match these filters, congrats i guess?</p>;
 
   return (

@@ -12,11 +12,14 @@ export function ActivityFeed() {
   const lastSeenRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    // catchup first
-    fetchMissedActivity(lastSeenRef.current).then((missed: ActivityEvent[]) => {
-      setEvents(missed); // already ordered newest-first by the backend
-      if (missed.length > 0) lastSeenRef.current = missed[0].timestamp;
-    });
+    // catchup first - wrapped in catch so a flaky backend call doesnt
+    // white-screen whatever page this feed is sitting on
+    fetchMissedActivity(lastSeenRef.current)
+      .then((missed: ActivityEvent[]) => {
+        setEvents(missed); // already ordered newest-first by the backend
+        if (missed.length > 0) lastSeenRef.current = missed[0].timestamp;
+      })
+      .catch(() => setEvents([])); // fail quiet, feed just shows empty instead of crashing
 
     const socket = getSocket();
     if (!socket) return; // shouldnt happen if connectSocket ran after login but just in case

@@ -25,10 +25,7 @@ export default function App() {
   // annoying than wrapping every single page component separately
   return (
     <ErrorBoundary>
-      <div className="premium-grid-bg" />
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        <RouterProvider router={router} />
-      </div>
+      <RouterProvider router={router} />
     </ErrorBoundary>
   );
 }

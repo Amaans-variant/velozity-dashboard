@@ -4,7 +4,6 @@ import { router } from './routes/router';
 import { useAuthStore } from './store/authStore';
 import { connectSocket, disconnectSocket } from './sockets/socketClient';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { GridBackdrop } from './components/ui/GridBackdrop';
 
 export default function App() {
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -26,10 +25,7 @@ export default function App() {
   // annoying than wrapping every single page component separately
   return (
     <ErrorBoundary>
-      <div className="app-shell">
-        <GridBackdrop />
-        <RouterProvider router={router} />
-      </div>
+      <RouterProvider router={router} />
     </ErrorBoundary>
   );
 }

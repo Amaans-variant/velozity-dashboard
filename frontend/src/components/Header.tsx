@@ -3,24 +3,22 @@ import { useAuthStore } from '../store/authStore';
 import { logoutRequest } from '../api/auth.api';
 import { disconnectSocket } from '../sockets/socketClient';
 import { NotificationBell } from './NotificationBell';
+import { Avatar } from './ui/Avatar';
+import { RoleBadge } from './ui/Badge';
+import { LogOutIcon } from './ui/icons';
 
-// this didnt exist before - there was literally no logout button anywhere
-// in the entire app, and every dashboard rolled its own little "title +
-// bell icon" bar with slightly different styling. one shared header fixes
-// both: consistent look across every page (the "order" thing), AND it
-// shows who's actually logged in so a random name showing up in the
-// activity feed ("Ravi moved...") at least has SOME context - u can see
-// ur own identity is Ravi/PM/whatever right at the top, every single page
+// shared header across every page - shows who's logged in (their identity +
+// role) so the app never feels anonymous, plus notifications and logout in
+// one consistent spot instead of every dashboard rolling its own title bar
 export function Header({ title }: { title: string }) {
   const { user, clearAuth } = useAuthStore();
   const navigate = useNavigate();
 
   async function handleLogout() {
     try {
-      await logoutRequest(); // tells the backend to revoke the refresh token
+      await logoutRequest();
     } catch {
-      // even if this fails (server down, whatever) still log them out
-      // locally, no point trapping someone who wants to leave
+      // even if this fails, still log them out locally
     }
     disconnectSocket();
     clearAuth();
@@ -28,21 +26,31 @@ export function Header({ title }: { title: string }) {
   }
 
   return (
-    <div className="header-bar glass fade-up">
-      <div>
-        <h2 className="brand">{title}</h2>
-        {/* this little line is basically the "profile system" - not a
-            whole page, just enough context so u always know whos logged
-            in and what they can do, instead of the app feeling anonymous */}
-        {user && (
-          <p className="brand-sub">
-            logged in as <strong>{user.name}</strong> · {user.role}
-          </p>
-        )}
+    <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-white/8 pb-5">
+      <div className="flex items-center gap-3">
+        <div className="hidden h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-violet text-sm font-bold text-base-950 sm:flex">
+          K
+        </div>
+        <div>
+          <h1 className="font-display text-2xl font-semibold text-ink-100">{title}</h1>
+          {user && (
+            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-500">
+              logged in as <strong className="text-ink-300">{user.name}</strong>
+              <RoleBadge role={user.role} />
+            </p>
+          )}
+        </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div className="flex items-center gap-3">
+        {user && <Avatar name={user.name} online size={30} />}
         <NotificationBell />
-        <button onClick={handleLogout} className="btn btn-ghost btn-sm">Log out</button>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2 text-xs text-ink-300 transition-colors hover:border-rose-500/30 hover:text-rose-300"
+        >
+          <LogOutIcon className="h-3.5 w-3.5" />
+          Log out
+        </button>
       </div>
     </div>
   );

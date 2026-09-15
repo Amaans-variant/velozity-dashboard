@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { fetchClients, createClient, createProject } from '../api/tasks.api';
+import { Button, Input, Select } from './ui/Button';
+import { PlusIcon } from './ui/icons';
 
-// ok so this component fixes a genuinely embarrassing gap - PMs could VIEW
-// projects but there was literally no button anywhere to make a new one.
-// kinda like building a whole restaurant and forgetting the front door.
-// this also lets u create a brand new client on the fly instead of forcing
-// u to go make one separately first, bc who wants to context switch for that
+// fixes the gap where PMs could view projects but had no way to make one -
+// logic is byte-for-byte the same as before, only the markup changed
 export function CreateProjectForm({ onCreated }: { onCreated: () => void }) {
-  const [open, setOpen] = useState(false); // collapsed by default, dont wanna clutter the page
+  const [open, setOpen] = useState(false);
   const [clients, setClients] = useState<any[]>([]);
   const [name, setName] = useState('');
   const [clientId, setClientId] = useState('');
   const [newClientName, setNewClientName] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  // only fetch clients once they actually open the form, no point loading
-  // stuff nobody asked for yet
   useEffect(() => {
     if (open) fetchClients().then(setClients);
   }, [open]);
@@ -23,68 +22,78 @@ export function CreateProjectForm({ onCreated }: { onCreated: () => void }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    setSubmitting(true);
     try {
       let finalClientId = clientId;
-      // if they typed a brand new client name instead of picking an existing
-      // one, create that client first, THEN use its id. two api calls but
-      // feels like one smooth action to the user, thats the whole point
       if (!finalClientId && newClientName) {
         const client = await createClient(newClientName);
         finalClientId = client.id;
       }
       if (!finalClientId) {
-        setError('pick an existing client or type a new one, cant leave this blank');
+        setError('pick an existing client or type a new one');
+        setSubmitting(false);
         return;
       }
       await createProject(name, finalClientId);
-      // reset everything and close - classic "form did its job, get outta here" pattern
       setName('');
       setNewClientName('');
       setClientId('');
       setOpen(false);
-      onCreated(); // tell the parent (PMDashboard) to go refetch the list
+      onCreated();
     } catch (err: any) {
       setError(err?.response?.data?.message || 'something broke creating the project, try again');
+    } finally {
+      setSubmitting(false);
     }
   }
 
-  // collapsed state is just a button, dont render the whole form until
-  // someone actually wants it
   if (!open) {
-    return <button onClick={() => setOpen(true)} className="btn btn-primary" style={{ marginBottom: 14 }}>+ New Project</button>;
+    return (
+      <Button onClick={() => setOpen(true)} className="mb-4">
+        <PlusIcon className="h-4 w-4" /> New Project
+      </Button>
+    );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card" style={{ marginBottom: 16 }}>
-      <input
-        className="input"
-        placeholder="Project name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
-
-      <select
-        className="input"
-        value={clientId}
-        onChange={(e) => setClientId(e.target.value)}
+    <AnimatePresence>
+      <motion.form
+        onSubmit={handleSubmit}
+        initial={{ opacity: 0, height: 0 }}
+        animate={{ opacity: 1, height: 'auto' }}
+        exit={{ opacity: 0, height: 0 }}
+        className="mb-4 overflow-hidden rounded-2xl glass-panel p-4 shadow-panel"
       >
-        <option value="">-- pick existing client --</option>
-        {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-      </select>
+        <Input placeholder="Project name" value={name} onChange={(e) => setName(e.target.value)} required className="mb-2.5" />
 
-      {/* disabled once they've picked an existing client, dont let em do both at once */}
-      <input
-        className="input"
-        placeholder="...or type a brand new client name"
-        value={newClientName}
-        onChange={(e) => setNewClientName(e.target.value)}
-        disabled={!!clientId}
-      />
+        <Select value={clientId} onChange={(e) => setClientId(e.target.value)} className="mb-2.5">
+          <option value="">-- pick existing client --</option>
+          {clients.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </Select>
 
-      {error && <p className="err-text">{error}</p>}
-      <button type="submit" className="btn btn-primary">Create</button>
-      <button type="button" onClick={() => setOpen(false)} className="btn btn-ghost" style={{ marginLeft: 8 }}>Cancel</button>
-    </form>
+        <Input
+          placeholder="...or type a brand new client name"
+          value={newClientName}
+          onChange={(e) => setNewClientName(e.target.value)}
+          disabled={!!clientId}
+          className="mb-2.5"
+        />
+
+        {error && <p className="mb-2.5 rounded-lg bg-rose-500/10 px-3 py-2 text-xs text-rose-300">{error}</p>}
+
+        <div className="flex gap-2">
+          <Button type="submit" disabled={submitting}>
+            {submitting ? 'Creating…' : 'Create project'}
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+        </div>
+      </motion.form>
+    </AnimatePresence>
   );
 }

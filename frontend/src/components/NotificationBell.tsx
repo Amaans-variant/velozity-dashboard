@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { getSocket } from '../sockets/socketClient';
 import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../api/tasks.api';
 import { Notification } from '../types';
@@ -50,30 +51,38 @@ export function NotificationBell() {
   }
 
   return (
-    <div style={{ position: 'relative' }}>
-      <button onClick={() => setOpen(!open)}>
-        🔔 {unreadCount > 0 && <span style={{ background: 'red', color: 'white', borderRadius: '50%', padding: '0 6px', fontSize: 11 }}>{unreadCount}</span>}
+    <div className="notif-wrap">
+      <button onClick={() => setOpen(!open)} className="btn btn-ghost btn-sm">
+        🔔 {unreadCount > 0 && <span className="notif-count">{unreadCount}</span>}
       </button>
-      {open && (
-        <div style={{ position: 'absolute', right: 0, top: 30, width: 280, background: 'white', border: '1px solid #ddd', borderRadius: 6, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', zIndex: 10 }}>
-          <div style={{ padding: 8, borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between' }}>
-            <strong style={{ fontSize: 13 }}>Notifications</strong>
-            <button onClick={handleMarkAll} style={{ fontSize: 11 }}>mark all read</button>
-          </div>
-          <div style={{ maxHeight: 300, overflowY: 'auto' }}>
-            {notifications.length === 0 && <p style={{ padding: 8, fontSize: 12, color: '#888' }}>nothing here, go touch grass</p>}
-            {notifications.map((n) => (
-              <div
-                key={n.id}
-                onClick={() => !n.isRead && handleMarkOne(n.id)}
-                style={{ padding: 8, fontSize: 12, borderBottom: '1px solid #f2f2f2', background: n.isRead ? 'white' : '#f0f7ff', cursor: 'pointer' }}
-              >
-                {n.message}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="notif-panel card"
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.18 }}
+          >
+            <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <strong style={{ fontSize: 13 }}>Notifications</strong>
+              <button onClick={handleMarkAll} className="btn btn-ghost btn-sm">mark all read</button>
+            </div>
+            <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+              {notifications.length === 0 && <p className="muted" style={{ padding: 10, fontSize: 12 }}>nothing here, go touch grass</p>}
+              {notifications.map((n) => (
+                <div
+                  key={n.id}
+                  onClick={() => !n.isRead && handleMarkOne(n.id)}
+                  className={`notif-item ${!n.isRead ? 'notif-unread' : ''}`}
+                >
+                  {n.message}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

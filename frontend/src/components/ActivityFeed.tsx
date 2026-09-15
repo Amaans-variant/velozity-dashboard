@@ -36,13 +36,13 @@ export function ActivityFeed() {
   }, []);
 
   return (
-    <div style={{ border: '1px solid #ddd', borderRadius: 6, padding: 12, maxHeight: 400, overflowY: 'auto' }}>
+    <div className="card" style={{ maxHeight: 400, overflowY: 'auto' }}>
       <h4 style={{ marginTop: 0 }}>Live Activity</h4>
-      {events.length === 0 && <p style={{ color: '#888', fontSize: 13 }}>nothing happening yet... eerily quiet</p>}
+      {events.length === 0 && <p className="muted" style={{ fontSize: 13 }}>nothing happening yet... eerily quiet</p>}
       {events.map((ev, i) => (
-        <div key={ev.id || i} style={{ fontSize: 13, padding: '6px 0', borderBottom: '1px solid #eee' }}>
+        <div key={ev.id || i} style={{ fontSize: 13, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <strong>{ev.changedByName}</strong> moved <em>{ev.taskTitle}</em> from{' '}
-          {ev.fromStatus ?? 'nothing'} → {ev.toStatus} · {timeAgo(ev.timestamp)}
+          {ev.fromStatus ?? 'nothing'} → {ev.toStatus} · <span className="muted">{timeAgo(ev.timestamp)}</span>
         </div>
       ))}
     </div>

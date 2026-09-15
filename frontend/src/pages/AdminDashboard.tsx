@@ -5,6 +5,8 @@ import { ActivityFeed } from '../components/ActivityFeed';
 import { Header } from '../components/Header';
 import { CreateProjectForm } from '../components/CreateProjectForm';
 import { getSocket } from '../sockets/socketClient';
+import { Reveal } from '../components/ui/Reveal';
+import { TiltCard } from '../components/ui/TiltCard';
 
 // this used to just be a wall of numbers and a feed - admin couldnt DO
 // anything, couldnt even see WHO was on the team or click into a single
@@ -44,20 +46,20 @@ export default function AdminDashboard() {
     };
   }, []);
 
-  if (error) return <p style={{ padding: 24, color: 'red' }}>{error}</p>;
-  if (!data) return <p style={{ padding: 24 }}>loading admin dashboard...</p>;
+  if (error) return <p className="page err-text">{error}</p>;
+  if (!data) return <p className="page muted">loading admin dashboard...</p>;
 
   return (
-    <div style={{ padding: 24, fontFamily: 'sans-serif' }}>
+    <div className="page">
       <Header title="Admin Dashboard" />
 
-      <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
+      <div className="stat-grid">
         <StatCard label="Total Projects" value={data.totalProjects} />
         <StatCard label="Overdue Tasks" value={data.overdueCount} />
         <StatCard label="Online Now" value={onlineNow} live />
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+      <div className="stat-grid">
         {data.tasksByStatus.map((s: any) => (
           <StatCard key={s.status} label={s.status} value={s._count} />
         ))}
@@ -65,57 +67,63 @@ export default function AdminDashboard() {
 
       {/* the actual "can see the roles the manager assigned" fix - a real
           list of every user, their role, and what theyre carrying right now */}
-      <h4>Team</h4>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, marginBottom: 24 }}>
-        <thead>
-          <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Projects managed</th>
-            <th>Tasks assigned</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.team.map((u: any) => (
-            <tr key={u.id} style={{ borderBottom: '1px solid #eee' }}>
-              <td>{u.name}</td>
-              <td>{u.role}</td>
-              <td>{u.role === 'PM' ? u._count.createdProjects : '—'}</td>
-              <td>{u.role === 'DEVELOPER' ? u._count.assignedTasks : '—'}</td>
+      <Reveal>
+        <h4>Team</h4>
+        <table className="table-premium card" style={{ marginBottom: 24 }}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Projects managed</th>
+              <th>Tasks assigned</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.team.map((u: any) => (
+              <tr key={u.id}>
+                <td>{u.name}</td>
+                <td>{u.role}</td>
+                <td>{u.role === 'PM' ? u._count.createdProjects : '—'}</td>
+                <td>{u.role === 'DEVELOPER' ? u._count.assignedTasks : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Reveal>
 
       {/* admin gets the exact same "browse and act on projects" ability PM
           has, since the brief explicitly says admin has full access -
           before this fix admin literally had no way to click into a
           single project from their own dashboard */}
-      <h4>All Projects</h4>
-      <CreateProjectForm onCreated={loadProjects} />
-      <ul>
-        {projects.map((p) => (
-          <li key={p.id}>
-            <Link to={`/projects/${p.id}`}>{p.name}</Link> — {p.client?.name}
-          </li>
-        ))}
-      </ul>
-      {projects.length === 0 && <p style={{ color: '#888' }}>no projects yet</p>}
+      <Reveal delay={0.05}>
+        <h4>All Projects</h4>
+        <CreateProjectForm onCreated={loadProjects} />
+        <ul className="link-list">
+          {projects.map((p) => (
+            <li key={p.id} className="card card-hover">
+              <Link to={`/projects/${p.id}`}>{p.name}</Link> — {p.client?.name}
+            </li>
+          ))}
+        </ul>
+        {projects.length === 0 && <p className="muted">no projects yet</p>}
+      </Reveal>
 
-      <div style={{ marginTop: 24 }}>
-        <ActivityFeed />
-      </div>
+      <Reveal delay={0.1} className="fade-up" >
+        <div style={{ marginTop: 24 }}>
+          <ActivityFeed />
+        </div>
+      </Reveal>
     </div>
   );
 }
 
 function StatCard({ label, value, live }: { label: string; value: number; live?: boolean }) {
   return (
-    <div style={{ border: '1px solid #ddd', borderRadius: 6, padding: 12, minWidth: 100 }}>
-      <div style={{ fontSize: 24, fontWeight: 'bold' }}>
-        {value} {live && <span style={{ fontSize: 10, color: 'green' }}>● live</span>}
+    <TiltCard className="card card-hover stat-card">
+      <div className="stat-value">
+        {value} {live && <span className="stat-label"><span className="live-dot" />live</span>}
       </div>
-      <div style={{ fontSize: 12, color: '#666' }}>{label}</div>
-    </div>
+      <div className="stat-label">{label}</div>
+    </TiltCard>
   );
 }

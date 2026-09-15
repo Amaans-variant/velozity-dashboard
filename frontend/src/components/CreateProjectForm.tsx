@@ -51,23 +51,23 @@ export function CreateProjectForm({ onCreated }: { onCreated: () => void }) {
   // collapsed state is just a button, dont render the whole form until
   // someone actually wants it
   if (!open) {
-    return <button onClick={() => setOpen(true)} style={{ marginBottom: 12 }}>+ New Project</button>;
+    return <button onClick={() => setOpen(true)} className="btn btn-primary" style={{ marginBottom: 14 }}>+ New Project</button>;
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ddd', padding: 12, borderRadius: 6, marginBottom: 16 }}>
+    <form onSubmit={handleSubmit} className="card" style={{ marginBottom: 16 }}>
       <input
+        className="input"
         placeholder="Project name"
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
-        style={{ display: 'block', marginBottom: 8, padding: 6, width: '100%' }}
       />
 
       <select
+        className="input"
         value={clientId}
         onChange={(e) => setClientId(e.target.value)}
-        style={{ display: 'block', marginBottom: 8, padding: 6, width: '100%' }}
       >
         <option value="">-- pick existing client --</option>
         {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -75,16 +75,16 @@ export function CreateProjectForm({ onCreated }: { onCreated: () => void }) {
 
       {/* disabled once they've picked an existing client, dont let em do both at once */}
       <input
+        className="input"
         placeholder="...or type a brand new client name"
         value={newClientName}
         onChange={(e) => setNewClientName(e.target.value)}
         disabled={!!clientId}
-        style={{ display: 'block', marginBottom: 8, padding: 6, width: '100%' }}
       />
 
-      {error && <p style={{ color: 'red', fontSize: 12 }}>{error}</p>}
-      <button type="submit">Create</button>
-      <button type="button" onClick={() => setOpen(false)} style={{ marginLeft: 8 }}>Cancel</button>
+      {error && <p className="err-text">{error}</p>}
+      <button type="submit" className="btn btn-primary">Create</button>
+      <button type="button" onClick={() => setOpen(false)} className="btn btn-ghost" style={{ marginLeft: 8 }}>Cancel</button>
     </form>
   );
 }

@@ -42,14 +42,14 @@ export function TaskList({ projectId, refreshKey }: { projectId?: string; refres
     load();
   }
 
-  if (loading) return <p>loading tasks...</p>;
-  if (loadError) return <p style={{ color: 'red' }}>{loadError}</p>;
-  if (tasks.length === 0) return <p style={{ color: '#888' }}>no tasks match these filters, congrats i guess?</p>;
+  if (loading) return <p className="muted">loading tasks...</p>;
+  if (loadError) return <p className="err-text">{loadError}</p>;
+  if (tasks.length === 0) return <p className="muted">no tasks match these filters, congrats i guess?</p>;
 
   return (
-    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+    <table className="table-premium card" style={{ marginBottom: 16 }}>
       <thead>
-        <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
+        <tr>
           <th>Title</th>
           <th>Priority</th>
           <th>Status</th>
@@ -59,13 +59,13 @@ export function TaskList({ projectId, refreshKey }: { projectId?: string; refres
       </thead>
       <tbody>
         {tasks.map((t) => (
-          <tr key={t.id} style={{ borderBottom: '1px solid #eee', background: t.isOverdue ? '#fff3f3' : 'transparent' }}>
+          <tr key={t.id} className={t.isOverdue ? 'row-overdue' : ''}>
             <td>{t.title}</td>
-            <td>{t.priority}</td>
-            <td>{t.status}{t.isOverdue && <span style={{ color: 'red', marginLeft: 6 }}>OVERDUE</span>}</td>
+            <td><span className={`badge badge-${t.priority}`}>{t.priority}</span></td>
+            <td>{t.status}{t.isOverdue && <span className="badge badge-overdue">OVERDUE</span>}</td>
             <td>{t.dueDate ? new Date(t.dueDate).toLocaleDateString() : '—'}</td>
             <td>
-              <select value={t.status} onChange={(e) => handleStatusChange(t.id, e.target.value as TaskStatus)}>
+              <select value={t.status} onChange={(e) => handleStatusChange(t.id, e.target.value as TaskStatus)} style={{ marginBottom: 0 }}>
                 {STATUSES.map((s) => (
                   <option key={s} value={s}>{s}</option>
                 ))}

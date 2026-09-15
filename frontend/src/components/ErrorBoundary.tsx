@@ -30,10 +30,11 @@ export class ErrorBoundary extends Component<Props, State> {
       // deliberately ugly and plain, this is a "something went wrong" screen
       // not a feature, doesnt need to look nice
       return (
-        <div style={{ padding: 40, fontFamily: 'sans-serif', textAlign: 'center' }}>
-          <h2>uh oh, something broke on this page</h2>
-          <p style={{ color: '#666' }}>{this.state.message}</p>
-          <button onClick={() => (window.location.href = '/login')}>Take me back to login</button>
+        <div className="app-shell" style={{ padding: 40, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+          <div className="grid-backdrop" aria-hidden="true" />
+          <h2 className="brand">uh oh, something broke on this page</h2>
+          <p className="muted">{this.state.message}</p>
+          <button onClick={() => (window.location.href = '/login')} className="btn btn-primary" style={{ marginTop: 10 }}>Take me back to login</button>
         </div>
       );
     }

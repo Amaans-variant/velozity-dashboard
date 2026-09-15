@@ -28,21 +28,21 @@ export function Header({ title }: { title: string }) {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, paddingBottom: 12, borderBottom: '2px solid #eee' }}>
+    <div className="header-bar glass fade-up">
       <div>
-        <h2 style={{ margin: 0 }}>{title}</h2>
+        <h2 className="brand">{title}</h2>
         {/* this little line is basically the "profile system" - not a
             whole page, just enough context so u always know whos logged
             in and what they can do, instead of the app feeling anonymous */}
         {user && (
-          <p style={{ margin: '2px 0 0', fontSize: 12, color: '#888' }}>
+          <p className="brand-sub">
             logged in as <strong>{user.name}</strong> · {user.role}
           </p>
         )}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <NotificationBell />
-        <button onClick={handleLogout} style={{ fontSize: 12 }}>Log out</button>
+        <button onClick={handleLogout} className="btn btn-ghost btn-sm">Log out</button>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { FilterBar } from '../components/FilterBar';
 import { TaskList } from '../components/TaskList';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { Header } from '../components/Header';
+import { Reveal } from '../components/ui/Reveal';
 
 // developer dashboard is the simplest of the 3 - just their own tasks,
 // sorted priority then due date (backend does the sorting, see task.service).
@@ -10,15 +11,19 @@ import { Header } from '../components/Header';
 // get a logout button that actually exists somewhere
 export default function DeveloperDashboard() {
   return (
-    <div style={{ padding: 24, fontFamily: 'sans-serif' }}>
+    <div className="page">
       <Header title="My Tasks" />
 
-      <FilterBar />
-      <TaskList /> {/* no projectId passed - backend already knows to scope to "my tasks" */}
+      <Reveal>
+        <FilterBar />
+        <TaskList /> {/* no projectId passed - backend already knows to scope to "my tasks" */}
+      </Reveal>
 
-      <div style={{ marginTop: 24 }}>
-        <ActivityFeed />
-      </div>
+      <Reveal delay={0.05}>
+        <div style={{ marginTop: 24 }}>
+          <ActivityFeed />
+        </div>
+      </Reveal>
     </div>
   );
 }

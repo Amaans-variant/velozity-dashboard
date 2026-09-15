@@ -4,6 +4,7 @@ import { fetchDashboard, fetchProjects } from '../api/tasks.api';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { Header } from '../components/Header';
 import { CreateProjectForm } from '../components/CreateProjectForm';
+import { Reveal } from '../components/ui/Reveal';
 
 export default function PMDashboard() {
   const [data, setData] = useState<any>(null);
@@ -19,29 +20,33 @@ export default function PMDashboard() {
     loadProjects();
   }, []);
 
-  if (error) return <p style={{ padding: 24, color: 'red' }}>{error}</p>;
-  if (!data) return <p style={{ padding: 24 }}>loading...</p>;
+  if (error) return <p className="page err-text">{error}</p>;
+  if (!data) return <p className="page muted">loading...</p>;
 
   return (
-    <div style={{ padding: 24, fontFamily: 'sans-serif' }}>
+    <div className="page">
       <Header title="PM Dashboard" />
 
-      <p>{data.projectCount} project(s) · {data.upcomingDueCount} task(s) due this week</p>
+      <p className="muted fade-up">{data.projectCount} project(s) · {data.upcomingDueCount} task(s) due this week</p>
 
-      <h4>Your Projects</h4>
-      <CreateProjectForm onCreated={loadProjects} />
-      <ul>
-        {projects.map((p) => (
-          <li key={p.id}>
-            <Link to={`/projects/${p.id}`}>{p.name}</Link> — {p.client?.name}
-          </li>
-        ))}
-      </ul>
-      {projects.length === 0 && <p style={{ color: '#888' }}>no projects yet, make one above</p>}
+      <Reveal>
+        <h4>Your Projects</h4>
+        <CreateProjectForm onCreated={loadProjects} />
+        <ul className="link-list">
+          {projects.map((p) => (
+            <li key={p.id} className="card card-hover">
+              <Link to={`/projects/${p.id}`}>{p.name}</Link> — {p.client?.name}
+            </li>
+          ))}
+        </ul>
+        {projects.length === 0 && <p className="muted">no projects yet, make one above</p>}
+      </Reveal>
 
-      <div style={{ marginTop: 24 }}>
-        <ActivityFeed />
-      </div>
+      <Reveal delay={0.05}>
+        <div style={{ marginTop: 24 }}>
+          <ActivityFeed />
+        </div>
+      </Reveal>
     </div>
   );
 }

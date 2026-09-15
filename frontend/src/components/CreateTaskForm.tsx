@@ -48,40 +48,40 @@ export function CreateTaskForm({ projectId, onCreated }: { projectId: string; on
   }
 
   if (!open) {
-    return <button onClick={() => setOpen(true)} style={{ marginBottom: 12 }}>+ New Task</button>;
+    return <button onClick={() => setOpen(true)} className="btn btn-primary" style={{ marginBottom: 14 }}>+ New Task</button>;
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ddd', padding: 12, borderRadius: 6, marginBottom: 16 }}>
+    <form onSubmit={handleSubmit} className="card" style={{ marginBottom: 16 }}>
       <input
+        className="input"
         placeholder="Task title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         required
-        style={{ display: 'block', marginBottom: 8, padding: 6, width: '100%' }}
       />
 
       <textarea
+        className="input"
         placeholder="Description (optional, but nice to have so the dev knows whats actually going on)"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         rows={3}
-        style={{ display: 'block', marginBottom: 8, padding: 6, width: '100%', fontFamily: 'inherit' }}
       />
 
       <select
+        className="input"
         value={assignedToId}
         onChange={(e) => setAssignedToId(e.target.value)}
-        style={{ display: 'block', marginBottom: 8, padding: 6, width: '100%' }}
       >
         <option value="">-- assign to developer (optional for now) --</option>
         {devs.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
       </select>
 
       <select
+        className="input"
         value={priority}
         onChange={(e) => setPriority(e.target.value)}
-        style={{ display: 'block', marginBottom: 8, padding: 6, width: '100%' }}
       >
         <option value="LOW">Low</option>
         <option value="MEDIUM">Medium</option>
@@ -90,15 +90,15 @@ export function CreateTaskForm({ projectId, onCreated }: { projectId: string; on
       </select>
 
       <input
+        className="input"
         type="date"
         value={dueDate}
         onChange={(e) => setDueDate(e.target.value)}
-        style={{ display: 'block', marginBottom: 8, padding: 6, width: '100%' }}
       />
 
-      {error && <p style={{ color: 'red', fontSize: 12 }}>{error}</p>}
-      <button type="submit">Create</button>
-      <button type="button" onClick={() => setOpen(false)} style={{ marginLeft: 8 }}>Cancel</button>
+      {error && <p className="err-text">{error}</p>}
+      <button type="submit" className="btn btn-primary">Create</button>
+      <button type="button" onClick={() => setOpen(false)} className="btn btn-ghost" style={{ marginLeft: 8 }}>Cancel</button>
     </form>
   );
 }

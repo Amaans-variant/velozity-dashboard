@@ -7,6 +7,7 @@ import { TaskList } from '../components/TaskList';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { CreateTaskForm } from '../components/CreateTaskForm';
 import { Header } from '../components/Header';
+import { Reveal } from '../components/ui/Reveal';
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -30,23 +31,26 @@ export default function ProjectDetailPage() {
     };
   }, [id]);
 
-  if (error) return <p style={{ padding: 24, color: 'red' }}>{error}</p>;
-  if (!project) return <p style={{ padding: 24 }}>loading project...</p>;
-  if (!id) return <p style={{ padding: 24, color: 'red' }}>no project id in the url, something's off</p>;
+  if (error) return <p className="page err-text">{error}</p>;
+  if (!project) return <p className="page muted">loading project...</p>;
+  if (!id) return <p className="page err-text">no project id in the url, something's off</p>;
 
   return (
-    <div style={{ padding: 24, fontFamily: 'sans-serif' }}>
+    <div className="page">
       <Header title={project.name} />
-      <p style={{ color: '#666', marginTop: -8 }}>Client: {project.client?.name}</p>
+      <p className="muted fade-up" style={{ marginTop: -8 }}>Client: {project.client?.name}</p>
 
-      <CreateTaskForm projectId={id} onCreated={() => setRefreshKey((k) => k + 1)} />
+      <Reveal>
+        <CreateTaskForm projectId={id} onCreated={() => setRefreshKey((k) => k + 1)} />
+        <FilterBar />
+        <TaskList projectId={id} refreshKey={refreshKey} />
+      </Reveal>
 
-      <FilterBar />
-      <TaskList projectId={id} refreshKey={refreshKey} />
-
-      <div style={{ marginTop: 24 }}>
-        <ActivityFeed />
-      </div>
+      <Reveal delay={0.05}>
+        <div style={{ marginTop: 24 }}>
+          <ActivityFeed />
+        </div>
+      </Reveal>
     </div>
   );
 }
